@@ -1,0 +1,69 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Nos Barbiers - BarberShop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Nos Barbiers</h1>
+        <p class="lead text-muted">Découvrez nos professionnels expérimentés</p>
+    </div>
+
+    <div class="row">
+        {% for barber in barbers %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card barber-card h-100">
+                {% if barber.profile_image %}
+                    <img src="{{ barber.profile_image.url }}" alt="{{ barber.name }}" class="barber-image">
+                {% else %}
+                    <div class="barber-image bg-primary d-flex align-items-center justify-content-center">
+                        <i class="fas fa-user fa-3x text-white"></i>
+                    </div>
+                {% endif %}
+                
+                <h4 class="fw-bold">{{ barber.name }}</h4>
+                <p class="text-primary fw-semibold">{{ barber.speciality }}</p>
+                
+                <div class="rating mb-3">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= barber.avg_rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="ms-2">{{ barber.avg_rating|floatformat:1 }}/5</span>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-briefcase me-1"></i>{{ barber.experience_years }} ans d'expérience
+                    </small>
+                </div>
+                
+                {% if barber.bio %}
+                <p class="text-muted small">{{ barber.bio|truncatewords:20 }}</p>
+                {% endif %}
+                
+                <div class="mt-auto">
+                    <a href="{% url 'barber_detail' barber.id %}" class="btn btn-primary w-100">
+                        <i class="fas fa-eye me-2"></i>Voir le profil
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="card">
+                <div class="card-body py-5">
+                    <i class="fas fa-user-tie fa-5x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucun barbier disponible</h4>
+                    <p class="text-muted">Revenez bientôt pour découvrir nos barbiers professionnels.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

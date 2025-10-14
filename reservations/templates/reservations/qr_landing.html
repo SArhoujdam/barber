@@ -1,0 +1,64 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Bienvenue chez {{ barber.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h1 class="fw-bold mb-2">Bienvenue 👋</h1>
+                        <p class="text-muted mb-0">Vous êtes chez <strong>{{ barber.name }}</strong></p>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <img src="{% url 'barber_qr_code' barber.id %}" alt="QR {{ barber.name }}" class="d-none">
+                        <i class="fas fa-cut fa-3x text-primary mb-3"></i>
+                        <p class="text-muted">Scanné via QR Code</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="fw-bold">Services disponibles</h5>
+                        {% if services %}
+                        <div class="row">
+                            {% for service in services %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    {% if service.image %}
+                                    <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h6 class="fw-bold mb-1">{{ service.name }}</h6>
+                                        <p class="text-muted small mb-2">{{ service.description|truncatewords:20 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ service.duration }}</small>
+                                            <span class="fw-bold text-primary">{{ service.price }}€</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">Aucun service n'est encore disponible.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{% url 'book_appointment' barber.id %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calendar-plus me-2"></i>Ajouter un rendez-vous
+                        </a>
+                        <div class="mt-3">
+                            <a class="text-muted" href="{% url 'barber_detail' barber.id %}">Voir le profil du barbier</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

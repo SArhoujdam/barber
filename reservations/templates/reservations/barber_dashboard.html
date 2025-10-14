@@ -1,0 +1,170 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Tableau de bord - {{ barber.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 fw-bold">Tableau de bord</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'manage_working_hours' %}" class="btn btn-outline-primary">
+                <i class="fas fa-clock me-2"></i>Horaires
+            </a>
+            <a href="{% url 'manage_services' %}" class="btn btn-outline-primary">
+                <i class="fas fa-cut me-2"></i>Services
+            </a>
+            <a href="{% url 'qr_landing' barber.id %}" class="btn btn-outline-primary">
+                <i class="fas fa-qrcode me-2"></i>QR Réservation
+            </a>
+            <a href="{% url 'edit_barber_profile' %}" class="btn btn-outline-primary">
+                <i class="fas fa-user-edit me-2"></i>Modifier le profil
+            </a>
+            <a href="{% url 'change_barber_profile_photo' %}" class="btn btn-outline-primary">
+                <i class="fas fa-camera me-2"></i>Photo de profil
+            </a>
+            <a href="{% url 'barber_appointments' %}" class="btn btn-outline-primary">
+                <i class="fas fa-list me-2"></i>Tous les rendez-vous
+            </a>
+            <a href="{% url 'register_barber' %}" class="btn btn-outline-primary">
+                <i class="fas fa-user-plus me-2"></i>Ajouter un barber
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                    <h4 class="fw-bold">{{ total_appointments }}</h4>
+                    <p class="text-muted mb-0">Total rendez-vous</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h4 class="fw-bold">{{ completed_appointments }}</h4>
+                    <p class="text-muted mb-0">Terminés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                    <h4 class="fw-bold">{{ pending_appointments }}</h4>
+                    <p class="text-muted mb-0">En attente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                    <h4 class="fw-bold">{{ barber.average_rating|floatformat:1 }}</h4>
+                    <p class="text-muted mb-0">Note moyenne</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Rendez-vous d'aujourd'hui -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Rendez-vous d'aujourd'hui</h5>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                    {% for appointment in today_appointments %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ appointment.client.user.first_name }} {{ appointment.client.user.last_name }}</h6>
+                            <p class="text-muted mb-1">{{ appointment.service.name }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>{{ appointment.appointment_time }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge status-{{ appointment.status }} mb-2">
+                                {{ appointment.get_status_display }}
+                            </span>
+                            <div>
+                                <form method="post" action="{% url 'update_appointment_status' appointment.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        {% for value, label in appointment.STATUS_CHOICES %}
+                                        <option value="{{ value }}" {% if appointment.status == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun rendez-vous aujourd'hui</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Rendez-vous à venir -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Rendez-vous à venir</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                    {% for appointment in upcoming_appointments %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ appointment.client.user.first_name }} {{ appointment.client.user.last_name }}</h6>
+                            <p class="text-muted mb-1">{{ appointment.service.name }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ appointment.appointment_date|date:"d M Y" }}
+                                <i class="fas fa-clock ms-3 me-1"></i>{{ appointment.appointment_time }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge status-{{ appointment.status }} mb-2">
+                                {{ appointment.get_status_display }}
+                            </span>
+                            <div>
+                                <form method="post" action="{% url 'update_appointment_status' appointment.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        {% for value, label in appointment.STATUS_CHOICES %}
+                                        <option value="{{ value }}" {% if appointment.status == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun rendez-vous à venir</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

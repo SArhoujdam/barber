@@ -1,0 +1,129 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Laisser un avis - BarberShop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 class="mb-0"><i class="fas fa-star me-2"></i>Laisser un avis</h3>
+                    <p class="text-muted mb-0">Partagez votre expérience avec {{ appointment.barber.name }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <h6 class="mb-2">Détails du rendez-vous</h6>
+                        <p class="mb-1"><strong>Service:</strong> {{ appointment.service.name }}</p>
+                        <p class="mb-1"><strong>Date:</strong> {{ appointment.appointment_date|date:"d M Y" }} à {{ appointment.appointment_time }}</p>
+                        <p class="mb-0"><strong>Prix:</strong> {{ appointment.total_price }}DH</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.rating.id_for_label }}" class="form-label">Note *</label>
+                            <div class="rating-input d-flex gap-2">
+                                {% for i in "12345" %}
+                                <label class="rating-star" for="rating_{{ forloop.counter }}">
+                                    <input type="radio" name="rating" value="{{ forloop.counter }}" id="rating_{{ forloop.counter }}" 
+                                           class="d-none" {% if form.rating.value == forloop.counter %}checked{% endif %}>
+                                    <i class="fas fa-star fa-2x text-muted" data-rating="{{ forloop.counter }}"></i>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% if form.rating.errors %}
+                                <div class="text-danger small">{{ form.rating.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.comment.id_for_label }}" class="form-label">Commentaire *</label>
+                            {{ form.comment }}
+                            {% if form.comment.errors %}
+                                <div class="text-danger small">{{ form.comment.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-star me-2"></i>Publier l'avis
+                            </button>
+                            <a href="{% url 'client_appointments' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour aux rendez-vous
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rating-star i');
+    const ratingInput = document.querySelector('input[name="rating"]:checked');
+    
+    // Initialiser l'affichage des étoiles
+    if (ratingInput) {
+        updateStars(parseInt(ratingInput.value));
+    }
+    
+    // Gérer le clic sur les étoiles
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const rating = parseInt(this.dataset.rating);
+            updateStars(rating);
+            document.querySelector(`input[value="${rating}"]`).checked = true;
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
+            updateStars(rating);
+        });
+    });
+    
+    // Réinitialiser au survol de la zone
+    document.querySelector('.rating-input').addEventListener('mouseleave', function() {
+        const checkedInput = document.querySelector('input[name="rating"]:checked');
+        if (checkedInput) {
+            updateStars(parseInt(checkedInput.value));
+        } else {
+            updateStars(0);
+        }
+    });
+    
+    function updateStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.remove('text-muted');
+                star.classList.add('text-warning');
+            } else {
+                star.classList.remove('text-warning');
+                star.classList.add('text-muted');
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.rating-star {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.rating-star:hover {
+    transform: scale(1.1);
+}
+
+.rating-input {
+    justify-content: center;
+}
+</style>
+{% endblock %}
+

@@ -1,0 +1,96 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Mes Rendez-vous - BarberShop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 fw-bold">Mes Rendez-vous</h1>
+        <a href="{% url 'barber_list' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nouveau rendez-vous
+        </a>
+    </div>
+
+    {% if appointments %}
+    <div class="row">
+        {% for appointment in appointments %}
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="fw-bold">{{ appointment.barber.name }}</h5>
+                            <p class="text-muted mb-1">{{ appointment.service.name }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ appointment.appointment_date|date:"d M Y" }}
+                                <i class="fas fa-clock ms-3 me-1"></i>{{ appointment.appointment_time }}
+                            </small>
+                        </div>
+                        <span class="badge status-{{ appointment.status }}">
+                            {{ appointment.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="h5 text-primary fw-bold">{{ appointment.total_price }}€</span>
+                            <small class="text-muted d-block">{{ appointment.service.duration }}</small>
+                            {% if appointment.queue_position is not None %}
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-users me-1"></i>
+                                    {{ appointment.queue_position }} personne(s) avant vous
+                                </small>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            {% if appointment.status == 'completed' and not appointment.review %}
+                            <a href="{% url 'add_review' appointment.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-star me-1"></i>Laisser un avis
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if appointment.notes %}
+                    <div class="alert alert-light">
+                        <small><strong>Notes:</strong> {{ appointment.notes }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-2">
+                        {% if appointment.can_be_cancelled %}
+                        <form method="post" action="{% url 'cancel_appointment' appointment.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                    onclick="return confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?')">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <a href="{% url 'barber_detail' appointment.barber.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>Voir le barbier
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="card">
+            <div class="card-body py-5">
+                <i class="fas fa-calendar-times fa-5x text-muted mb-4"></i>
+                <h4 class="text-muted">Aucun rendez-vous</h4>
+                <p class="text-muted mb-4">Vous n'avez pas encore de rendez-vous réservé.</p>
+                <a href="{% url 'barber_list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-calendar-alt me-2"></i>Réserver un rendez-vous
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

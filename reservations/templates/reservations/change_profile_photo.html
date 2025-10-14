@@ -1,0 +1,73 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Changer la photo de profil{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h3 class="fw-bold">Changer la photo de profil</h3>
+                        <p class="text-muted">Mettez à jour votre photo de profil</p>
+                    </div>
+
+                    <!-- Photo actuelle -->
+                    {% if profile.profile_image %}
+                    <div class="text-center mb-4">
+                        <h6>Photo actuelle</h6>
+                        <img src="{{ profile.profile_image.url }}" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" alt="Photo de profil">
+                    </div>
+                    {% else %}
+                    <div class="text-center mb-4">
+                        <h6>Aucune photo</h6>
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-3x text-muted"></i>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Formulaire -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.profile_image.id_for_label }}" class="form-label">Nouvelle photo de profil</label>
+                            {{ form.profile_image }}
+                            {% if form.profile_image.errors %}
+                                <div class="text-danger small">{{ form.profile_image.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Formats acceptés: JPG, PNG, GIF. Taille max: 5MB</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>Mettre à jour
+                            </button>
+                            {% if profile_type == 'barber' %}
+                            <a href="{% url 'barber_dashboard' %}" class="btn btn-outline-secondary">Annuler</a>
+                            {% else %}
+                            <a href="{% url 'client_appointments' %}" class="btn btn-outline-secondary">Annuler</a>
+                            {% endif %}
+                        </div>
+                    </form>
+
+                    <!-- Supprimer la photo -->
+                    {% if profile.profile_image %}
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <form method="post" action="{% if profile_type == 'barber' %}{% url 'change_barber_profile_photo' %}{% else %}{% url 'change_client_profile_photo' %}{% endif %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="profile_image-clear" value="1">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre photo de profil ?')">
+                                <i class="fas fa-trash me-1"></i>Supprimer la photo
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
