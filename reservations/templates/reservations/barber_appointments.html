@@ -35,6 +35,7 @@
                             <th>Service</th>
                             <th>Statut</th>
                             <th>Prix</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,6 +47,21 @@
                             <td>{{ a.service.name }}</td>
                             <td><span class="badge status-{{ a.status }}">{{ a.get_status_display }}</span></td>
                             <td>{{ a.total_price }}DH</td>
+                            <td>
+                                {% if a.status == 'pending' or a.status == 'confirmed' %}
+                                <form method="post" action="{% url 'update_appointment_status' a.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="pending" {% if a.status == 'pending' %}selected{% endif %}>En attente</option>
+                                        <option value="confirmed" {% if a.status == 'confirmed' %}selected{% endif %}>Confirmé</option>
+                                        <option value="in_progress">En cours</option>
+                                        <option value="completed">Terminé</option>
+                                        <option value="cancelled">Annulé</option>
+                                        <option value="no_show">Absent</option>
+                                    </select>
+                                </form>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -61,3 +77,5 @@
     </div>
 </div>
 {% endblock %}
+
+

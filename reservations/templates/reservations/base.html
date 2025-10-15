@@ -201,19 +201,20 @@
                                 <i class="fas fa-user me-1"></i>{{ user.username }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'client_appointments' %}">Mes Rendez-vous</a></li>
-                                <li><a class="dropdown-item" href="{% url 'edit_client_profile' %}">Modifier le profil</a></li>
-                                <li><a class="dropdown-item" href="{% url 'change_client_profile_photo' %}">Photo de profil</a></li>
-                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'app_logout' %}">Déconnexion</a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Connexion</a>
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Connexion
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-light ms-2" href="{% url 'register_client' %}">S'inscrire</a>
+                            <a class="nav-link" href="{% url 'register_client' %}">Inscription Client</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register_barber' %}">Inscription Barbier</a>
                         </li>
                     {% endif %}
                 </ul>

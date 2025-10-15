@@ -197,3 +197,5 @@ Pour toute question ou problème :
 
 **BarberShop** - Votre salon de coiffure connecté ! 💇‍♂️✨
 
+
+

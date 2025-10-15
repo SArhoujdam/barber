@@ -14,12 +14,16 @@
                     </div>
 
                     <!-- Photo de profil actuelle -->
-                    {% if profile.profile_image %}
                     <div class="text-center mb-4">
                         <h6>Photo de profil actuelle</h6>
-                        <img src="{{ profile.profile_image.url }}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" alt="Photo de profil">
+                        {% if profile.profile_image %}
+                            <img src="{{ profile.profile_image.url }}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" alt="Photo de profil">
+                        {% else %}
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-2x text-white"></i>
+                            </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
 
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}

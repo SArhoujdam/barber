@@ -111,26 +111,47 @@ class Appointment(models.Model):
     @property
     def appointment_datetime(self):
         """Retourne la date et l'heure combinées"""
-        return timezone.datetime.combine(self.appointment_date, self.appointment_time)
+        if self.appointment_date and self.appointment_time:
+            dt = timezone.datetime.combine(self.appointment_date, self.appointment_time)
+            # S'assurer que le datetime a une timezone
+            if dt.tzinfo is None:
+                dt = timezone.make_aware(dt)
+            return dt
+        return None
 
     @property
     def end_time(self):
         """Calcule l'heure de fin du rendez-vous"""
-        start_time = timezone.datetime.combine(self.appointment_date, self.appointment_time)
-        return start_time + self.service.duration
+        if self.appointment_date and self.appointment_time and self.service:
+            start_time = timezone.datetime.combine(self.appointment_date, self.appointment_time)
+            # S'assurer que le datetime a une timezone
+            if start_time.tzinfo is None:
+                start_time = timezone.make_aware(start_time)
+            return start_time + self.service.duration
+        return None
 
     def is_past(self):
         """Vérifie si le rendez-vous est dans le passé"""
-        now = timezone.now()
         appointment_datetime = self.appointment_datetime
-        return appointment_datetime < now
+        if appointment_datetime:
+            now = timezone.now()
+            # S'assurer que les deux datetimes ont la même timezone
+            if appointment_datetime.tzinfo is None:
+                appointment_datetime = timezone.make_aware(appointment_datetime)
+            return appointment_datetime < now
+        return False
 
     def can_be_cancelled(self):
         """Vérifie si le rendez-vous peut être annulé"""
-        now = timezone.now()
         appointment_datetime = self.appointment_datetime
-        # Peut être annulé jusqu'à 2 heures avant le rendez-vous
-        return (appointment_datetime - now).total_seconds() > 7200 and self.status in ['pending', 'confirmed']
+        if appointment_datetime:
+            now = timezone.now()
+            # S'assurer que les deux datetimes ont la même timezone
+            if appointment_datetime.tzinfo is None:
+                appointment_datetime = timezone.make_aware(appointment_datetime)
+            # Peut être annulé jusqu'à 2 heures avant le rendez-vous
+            return (appointment_datetime - now).total_seconds() > 7200 and self.status in ['pending', 'confirmed']
+        return False
 
 
 class Review(models.Model):

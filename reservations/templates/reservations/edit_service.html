@@ -57,11 +57,15 @@
                                 {% if form.image.errors %}
                                     <div class="text-danger small">{{ form.image.errors.0 }}</div>
                                 {% endif %}
-                                {% if service.image %}
                                 <div class="mt-2">
-                                    <img src="{{ service.image.url }}" class="img-fluid rounded" style="max-height: 160px;" alt="{{ service.name }}">
+                                    {% if service.image %}
+                                        <img src="{{ service.image.url }}" class="img-fluid rounded" style="max-height: 160px;" alt="{{ service.name }}">
+                                    {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 160px;">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-check mt-4">

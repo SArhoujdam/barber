@@ -4,6 +4,17 @@
 
 {% block content %}
 <div class="container py-5">
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card">
@@ -18,14 +29,22 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.barber.id_for_label }}" class="form-label">Barbier *</label>
-                                {{ form.barber }}
+                                <input type="text" class="form-control" value="{{ barber.name }}" readonly>
+                                <input type="hidden" name="barber" value="{{ barber.id }}">
                                 {% if form.barber.errors %}
                                     <div class="text-danger small">{{ form.barber.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.service.id_for_label }}" class="form-label">Service *</label>
-                                {{ form.service }}
+                                <select name="{{ form.service.name }}" id="{{ form.service.id_for_label }}" class="form-control">
+                                    <option value="">Sélectionnez un service</option>
+                                    {% for service in services %}
+                                    <option value="{{ service.id }}" data-price="{{ service.price }}">
+                                        {{ service.name }} - {{ service.price }}DH
+                                    </option>
+                                    {% endfor %}
+                                </select>
                                 {% if form.service.errors %}
                                     <div class="text-danger small">{{ form.service.errors.0 }}</div>
                                 {% endif %}
@@ -63,6 +82,15 @@
                             <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Prix du service</h6>
                             <div id="servicePrice" class="h4 text-primary fw-bold mb-0"></div>
                         </div>
+                        
+                        <!-- Affichage des erreurs générales -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg">
@@ -138,4 +166,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
 

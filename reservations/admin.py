@@ -104,11 +104,15 @@ class AppointmentAdmin(admin.ModelAdmin):
     )
     
     def appointment_datetime_display(self, obj):
-        return obj.appointment_datetime.strftime('%d/%m/%Y %H:%M')
+        if obj.appointment_datetime:
+            return obj.appointment_datetime.strftime('%d/%m/%Y %H:%M')
+        return '-'
     appointment_datetime_display.short_description = 'Date et heure'
     
     def end_time_display(self, obj):
-        return obj.end_time.strftime('%H:%M')
+        if obj.end_time:
+            return obj.end_time.strftime('%H:%M')
+        return '-'
     end_time_display.short_description = 'Heure de fin'
 
 

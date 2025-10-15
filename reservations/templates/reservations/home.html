@@ -44,8 +44,10 @@
                 <div class="card service-card h-100">
                     <div class="service-icon">
                          
-                        {% if 'coupe' in service.name|lower %}
+                        {% if 'coupe' in service.name|lower and service.image %}
                             <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}">
+                        {% elif 'coupe' in service.name|lower %}
+                            <i class="fas fa-cut"></i>
                         {% elif 'barbe' in service.name|lower %}
                             <i class="fas fa-user-tie"></i>
                         {% elif 'shampooing' in service.name|lower %}

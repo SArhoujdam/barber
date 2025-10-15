@@ -21,13 +21,18 @@ def create_test_data():
     # Créer des utilisateurs de test
     print("1. Création des utilisateurs...")
     
+    # Vérifier si les utilisateurs existent déjà
+    if User.objects.filter(username='slimane').exists():
+        print("Utilisateurs déjà créés, suppression des anciennes données...")
+        User.objects.filter(username__in=['slimane', 'barber1', 'barber2', 'client1', 'client2']).delete()
+    
     # Barbiers
     barber1_user = User.objects.create_user(
-        username='barber1',
-        email='barber1@barbershop.fr',
+        username='slimane',
+        email='slimane@barbershop.fr',
         password='password123',
-        first_name='Jean',
-        last_name='Dupont'
+        first_name='Slimane',
+        last_name='Arhoujdam'
     )
     
     barber2_user = User.objects.create_user(
@@ -60,9 +65,9 @@ def create_test_data():
     
     barber1 = Barber.objects.create(
         user=barber1_user,
-        name="Jean Dupont",
+        name="Slimane Arhoujdam",
         phone="01 23 45 67 89",
-        email="barber1@barbershop.fr",
+        email="slimane@barbershop.fr",
         speciality="Coupe moderne, Barbe, Coiffure homme",
         experience_years=8,
         bio="Passionné de coiffure depuis plus de 8 ans, je me spécialise dans les coupes modernes et l'entretien de la barbe.",
@@ -131,7 +136,9 @@ def create_test_data():
     ]
     
     created_services = []
-    for service_data in services:
+    for i, service_data in enumerate(services):
+        # Associer les services aux barbiers (alternance)
+        service_data['barber'] = barber1 if i % 2 == 0 else barber2
         service = Service.objects.create(**service_data)
         created_services.append(service)
     
@@ -261,4 +268,6 @@ def create_test_data():
 
 if __name__ == '__main__':
     create_test_data()
+
+
 

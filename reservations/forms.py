@@ -102,11 +102,15 @@ class AppointmentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        barber = kwargs.pop('barber', None)
         super().__init__(*args, **kwargs)
         # Filtrer les barbiers disponibles
         self.fields['barber'].queryset = Barber.objects.filter(is_available=True)
-        # Filtrer les services actifs
-        self.fields['service'].queryset = Service.objects.filter(is_active=True)
+        # Filtrer les services actifs pour un barbier spécifique si fourni
+        if barber:
+            self.fields['service'].queryset = Service.objects.filter(barber=barber, is_active=True)
+        else:
+            self.fields['service'].queryset = Service.objects.filter(is_active=True)
 
     def clean_appointment_date(self):
         appointment_date = self.cleaned_data.get('appointment_date')

@@ -90,7 +90,7 @@ def barber_detail(request, barber_id):
     """Détails d'un barbier"""
     barber = get_object_or_404(Barber, id=barber_id)
     reviews = Review.objects.filter(barber=barber).order_by('-created_at')
-    services = Service.objects.filter(is_active=True)
+    services = Service.objects.filter(barber=barber, is_active=True)
     
     # Calculer la note moyenne
     avg_rating = reviews.aggregate(avg_rating=Avg('rating'))['avg_rating'] or 0
@@ -110,21 +110,27 @@ def book_appointment(request, barber_id):
     barber = get_object_or_404(Barber, id=barber_id)
     
     if request.method == 'POST':
-        form = AppointmentForm(request.POST)
+        form = AppointmentForm(request.POST, barber=barber)
         if form.is_valid():
             appointment = form.save(commit=False)
             appointment.client = request.user.client_profile
             appointment.barber = barber
             appointment.total_price = appointment.service.price
             appointment.save()
-            messages.success(request, 'Votre rendez-vous a été réservé avec succès!')
+            messages.success(request, f'Votre rendez-vous avec {barber.name} a été réservé avec succès pour le {appointment.appointment_date} à {appointment.appointment_time}!')
             return redirect('client_appointments')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
     else:
-        form = AppointmentForm(initial={'barber': barber})
+        form = AppointmentForm(initial={'barber': barber}, barber=barber)
+    
+    # Filtrer les services pour ce barbier spécifique
+    services = Service.objects.filter(barber=barber, is_active=True)
     
     context = {
         'form': form,
         'barber': barber,
+        'services': services,
     }
     return render(request, 'reservations/book_appointment.html', context)
 
